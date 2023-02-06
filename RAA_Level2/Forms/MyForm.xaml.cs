@@ -58,123 +58,36 @@ namespace RAA_Level2
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
             //ProcessCSV();
-            string enteredPath = VerifyCSVPath();
-            if (enteredPath != null)
-            {
-                this.DialogResult = false;
-                this.Close();
-            }
-
+            string enteredPath = ProcessCSV();
         }
 
-        private void ProcessCSV0()
+        private string ProcessCSV()
         {
-            // Verify is a good file path
+            // Verify the user entered a good file path
             string enteredPath = VerifyCSVPath();
             if (enteredPath != null)
             {
-                lblInfo.Content = "Processing...";
-
-                //Get CSV data
-                string[] csvData = System.IO.File.ReadAllLines(enteredPath);
-
-                List <string[]> dataList = new List <string[] >();
-                foreach (string data in csvData)
+                // Verify Unit type selected. If not Metric or Imperial units have been selected,
+                // the user to select one of the unit options.
+                string selectedUnitType = VerifySelectedUnits();
+                if (selectedUnitType != null)
                 {
-                    string[] cellString = data.Split(',');
-                    dataList.Add(cellString);
+                    lblInfo.Content = "Processing...";
+                    LblInfo_Clear();
+                    this.DialogResult = true;
+                    this.Close();
+                    return selectedUnitType;
                 }
-
-                // remove header row
-                dataList.RemoveAt(0);
-
-                // Verify Unity type selected
-                string selectedUnitType =  VerifySelectedUnits();
-                if(selectedUnitType != null)
-                {
-                    CreateLevelsFromCSV(dataList, selectedUnitType);
-
-                    // Get the types seected
-                    if (cbxCreateFloorPanels.IsChecked == true || cbxCreateCeilingPlans.IsChecked == true)
-                    {
-                        if (cbxCreateFloorPanels.IsChecked == true)
-                        {
-                            CreateFloorPlans(dataList);
-                        }
-                        if (cbxCreateCeilingPlans.IsChecked == true)
-                        {
-                            CreateCeilingPlans(dataList);
-                        }
-                    }
-                    else { lblInfo.Content = "Level types have NOT been checked off."; } // Alert the user if no level types have been selected
-                    
-                    
-                }
+                
             }
             else
             {
-                LblInfo_Clear();                
+                LblInfo_Clear();   
+                return null;
             }
+            return null;
         }
 
-        private void CreateLevelsFromCSV(List<string[]> dataList, string selectedUnitType)
-        {
-            foreach (var row in dataList)
-            {
-                string levelName = row[0];
-                string imperialValue = row[1];
-                string metricValue = row[2];
-
-                string elevationValue = "";
-                if (selectedUnitType == "Imperial") { elevationValue = imperialValue; }
-                if (selectedUnitType == "Metric") { elevationValue = metricValue; }
-
-                double actualNumber;
-                bool convertNumber = double.TryParse(elevationValue, out actualNumber);
-
-                if (convertNumber == false)
-                {
-                    continue;
-                }
-
-                // same code as TryParse
-                double actualNumber2 = 0;
-                try
-                {
-                    actualNumber2 = double.Parse(elevationValue);
-                }
-                catch (Exception)
-                {
-                    TaskDialog.Show("Error", "The item in the number column is not a number");
-                }
-
-                if (convertNumber == false)
-                {
-                    TaskDialog.Show("Error", "The item in the number column is not a number");
-                }
-
-                double metricConvert = actualNumber * 3.28084;
-                //Level currentLevel = Level.Create(doc, metricConvert);
-                //currentLevel.Name = text;
-
-                //ViewFamilyType planVFT = GetViewFamilyTypeByName(doc, "Floor Plan", ViewFamily.FloorPlan);
-                //ViewFamilyType ceilingPlanVFT = GetViewFamilyTypeByName(doc, "Ceiling Plan", ViewFamily.CeilingPlan);
-
-                //ViewPlan plan = ViewPlan.Create(doc, planVFT.Id, currentLevel.Id);
-                //ViewPlan ceilingPlan = ViewPlan.Create(doc, ceilingPlanVFT.Id, currentLevel.Id);
-            }
-            
-        }
-
-        private void CreateCeilingPlans(List<string[]> dataList)
-        {
-            lblInfo.Content = "CreateCeilingPlans Method not yet implemented";
-        }
-
-        private void CreateFloorPlans(List<string[]> dataList)
-        {
-            lblInfo.Content = "CreateFloorPlans Method not yet implemented";
-        }
         private string VerifySelectedUnits() 
         {
             if (rbImperial.IsChecked == true)
