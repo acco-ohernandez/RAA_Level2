@@ -175,7 +175,6 @@ namespace RAA_Level2
         {
             lblInfo.Content = "CreateFloorPlans Method not yet implemented";
         }
-
         private string VerifySelectedUnits() 
         {
             if (rbImperial.IsChecked == true)
