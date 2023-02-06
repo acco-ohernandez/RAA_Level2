@@ -39,6 +39,10 @@ namespace RAA_Level2
             currentForm.ShowDialog();
 
             // get form data and do something
+            if (currentForm.DialogResult == false)
+            {
+                return Result.Cancelled;
+            }
 
             return Result.Succeeded;
         }

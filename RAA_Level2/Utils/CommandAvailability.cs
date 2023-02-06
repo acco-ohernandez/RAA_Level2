@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RAA_Level2
 {
-    internal class CommandAvailability
+    internal class CommandAvailability : IExternalCommandAvailability
     {
         public bool IsCommandAvailable(UIApplication applicationData, CategorySet selectedCategories)
         {

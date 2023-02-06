@@ -15,9 +15,9 @@
             <RowDefinition Height="70"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="70"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         
@@ -28,18 +28,21 @@
         
         <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="50">Project Setup</Label>
         
-        <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="20">Select Setup CSV File:</Label>
+        <Label x:Name="lblTextbox" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="20">Select Setup CSV File:</Label>
         <TextBox x:Name="txbInput" Grid.Row="2" Grid.Column="0" Height="30" HorizontalAlignment="Stretch" Text="Enter your file path here" VerticalContentAlignment="Center" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
         <Button Grid.Row="2" Grid.Column="1" x:Name="btnSelect" Content="Select" Height="30" Margin="5,0,0,0" Width="100" HorizontalAlignment="Left" Click="btnSelect_Click"/>
-
-        <Label Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14">Select Units:</Label>
+        <StackPanel x:Name="stpInfo" Orientation="Vertical" Grid.Row="3" Grid.Column="0">
+            <Label x:Name="lblInfo" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14">- </Label>
+            <Label Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14">Select Unit Type:</Label>
+        </StackPanel>
+        
         <StackPanel x:Name="stpUnits" Orientation="Horizontal" Grid.Row="4" Grid.Column="0">
-            <RadioButton x:Name="rb1" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" GroupName="Group1" >Imperial</RadioButton>
-            <RadioButton x:Name="rb2" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" GroupName="Group1" >Metric</RadioButton>
+            <RadioButton x:Name="rbImperial" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" GroupName="Group1" >Imperial</RadioButton>
+            <RadioButton x:Name="rbMetric" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" GroupName="Group1" >Metric</RadioButton>
         </StackPanel>
 
         <StackPanel x:Name="stpCheckBoxes" Orientation="Vertical" Grid.Row="5" Grid.Column="0">
-            <Label Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14">Select Units:</Label>
+            <Label Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14">Select Types:</Label>
             <CheckBox x:Name="cbxCreateFloorPanels" Margin="0,0,10,0" >Create Floor Plans</CheckBox>
             <CheckBox x:Name="cbxCreateCeilingPlans" Margin="0,0,10,0" >Create Ceiling Plans</CheckBox>
         </StackPanel>
