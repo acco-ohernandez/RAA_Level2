@@ -37,6 +37,7 @@ namespace RAA_Level2
             
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.InitialDirectory = @"C:\";
+            openFile.RestoreDirectory = true;
             openFile.Filter = "csv files (*.csv)|*.csv";
 
             if (openFile.ShowDialog() == true)
@@ -142,5 +143,6 @@ namespace RAA_Level2
             }
             return null;
         }
+
     }
 }

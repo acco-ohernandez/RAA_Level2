@@ -3,6 +3,7 @@ using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using RAA_Level2;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,8 +12,7 @@ using System.Windows.Markup;
 
 #endregion
 
-namespace RAA_Level2
-{
+namespace RAA_Level2{
     internal class App : IExternalApplication
     {
         public Result OnStartup(UIControlledApplication app)
@@ -31,7 +31,7 @@ namespace RAA_Level2
             RibbonPanel panel = Utils.CreateRibbonPanel(app, "Revit Add-in Academy", "Revit Tools");
 
             // 3. Create button data instances
-            ButtonDataClass myButtonData = new ButtonDataClass("MyButton", "My Button", "Command", Properties.Resources.Blue_32, Properties.Resources.Blue_16, "This is a tooltip");
+            ButtonDataClass myButtonData = new ButtonDataClass("btnRAA_Level2_Module1_Review", "Project\nSetup", Command.GetMethod(), Properties.Resources.Blue_32, Properties.Resources.Blue_16, "This is a tooltip");
 
             // 4. Create buttons
             PushButton myButton = panel.AddItem(myButtonData.Data) as PushButton;

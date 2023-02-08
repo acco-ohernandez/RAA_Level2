@@ -7,6 +7,8 @@ using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Controls;
 
 #endregion
 
@@ -15,6 +17,8 @@ namespace RAA_Level2
     [Transaction(TransactionMode.Manual)]
     public class Command : IExternalCommand
     {
+        
+
         public Result Execute(
           ExternalCommandData commandData,
           ref string message,
@@ -57,10 +61,10 @@ namespace RAA_Level2
             }
 
             // Check if CreateFloorPanels was selected
-            bool createFloolPanels = false;
+            bool createFloorPanels = false;
             if (currentForm.cbxCreateFloorPanels.IsChecked == true)
             {
-                createFloolPanels = true;
+                createFloorPanels = true;
             }
             // Check if CreateCeilingPlans was selected
             bool createCeilingPlans = false;
@@ -83,70 +87,84 @@ namespace RAA_Level2
             dataList.RemoveAt(0);
 
 
-            CreateLevelsFromCSV(doc, dataList, unitSelected);
+            using (Transaction t = new Transaction(doc))
+            {
+                t.Start("Create Levesl");
+                CreateLevelsFromCSV(doc, dataList, unitSelected, createFloorPanels, createCeilingPlans); 
+                t.Commit();
+            }
 
             
 
             return Result.Succeeded;
+        }//EndOf_Execute
+
+        internal static string GetMethod()
+        {
+            var method = MethodBase.GetCurrentMethod().DeclaringType?.FullName;
+            return method;
         }
 
-        private void CreateLevelsFromCSV(Document Doc, List<string[]> DataList, string selectedUnitType)
+        private void CreateLevelsFromCSV(Document Doc, List<string[]> DataList, string selectedUnitType, bool createFloorPanels, bool createCeilingPlans)
         {
+            int levelCount      = 0;
+            int CeilingCount    = 0;
+            int FloorPanelCount = 0;
+
             foreach (var row in DataList)
             {
                 string levelName = row[0];
                 string imperialValue = row[1];
                 string metricValue = row[2];
 
-                string elevationValue = "";
-                if (selectedUnitType == "Imperial") { elevationValue = imperialValue; }
-                if (selectedUnitType == "Metric") { elevationValue = metricValue; }
+                // Convert the elevation string values to a Double elevationValue
+                double elevationValue = 0;
+                if (selectedUnitType == "Imperial") { double.TryParse(imperialValue, out elevationValue); }
+                if (selectedUnitType == "Metric") 
+                {
+                    double.TryParse(metricValue, out elevationValue);
+                    double levelElevation = elevationValue * 3.28084;
+                }
 
-                double actualNumber;
-                bool convertNumber = double.TryParse(elevationValue, out actualNumber);
-
-                if (convertNumber == false)
+                if (elevationValue == 0)
                 {
                     continue;
                 }
 
-                // same code as TryParse
-                double actualNumber2 = 0;
-                try
+                // Create the levels
+                Level currentLevel = Level.Create(Doc, elevationValue);
+                currentLevel.Name = levelName;
+
+                if (createFloorPanels)
                 {
-                    actualNumber2 = double.Parse(elevationValue);
+                    // Create the Floor Plan View
+                    ViewFamilyType planVFT = GetVFTypeByName(Doc, "Floor Plan", ViewFamily.FloorPlan);
+                    ViewPlan currentPlan = ViewPlan.Create(Doc, planVFT.Id, currentLevel.Id);
+                    FloorPanelCount++;
                 }
-                catch (Exception)
+                if (createCeilingPlans)
                 {
-                    TaskDialog.Show("Error", "The item in the number column is not a number");
+                    // Create the Ceiling View
+                    ViewFamilyType ceilingPlanVFT = GetVFTypeByName(Doc, "Ceiling Plan", ViewFamily.CeilingPlan);
+                    ViewPlan currentCeilingPlan = ViewPlan.Create(Doc, ceilingPlanVFT.Id, currentLevel.Id);
+                    CeilingCount++;
                 }
+                levelCount++;
 
-                if (convertNumber == false)
-                {
-                    TaskDialog.Show("Error", "The item in the number column is not a number");
-                }
 
-                double metricConvert = actualNumber * 3.28084;
-                //Level currentLevel = Level.Create(doc, metricConvert);
-                //currentLevel.Name = text;
-
-                //ViewFamilyType planVFT = GetViewFamilyTypeByName(doc, "Floor Plan", ViewFamily.FloorPlan);
-                //ViewFamilyType ceilingPlanVFT = GetViewFamilyTypeByName(doc, "Ceiling Plan", ViewFamily.CeilingPlan);
-
-                //ViewPlan plan = ViewPlan.Create(doc, planVFT.Id, currentLevel.Id);
-                //ViewPlan ceilingPlan = ViewPlan.Create(doc, ceilingPlanVFT.Id, currentLevel.Id);
             }
+            TaskDialog.Show("Info", "Created " + levelCount + " Levels\nCreated " + FloorPanelCount + " Floor Plan Views\nCreated " + CeilingCount + " Ceiling Plan Views");
+        }//EndOf_CreateLevelsFromCSV
 
+        private ViewFamilyType GetVFTypeByName(Document doc, string vftName, ViewFamily vfFloorPlan)
+        {
+            var collector = new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType));
+            foreach (ViewFamilyType currentVFT in collector)
+            {
+                if (currentVFT.Name == vftName && currentVFT.ViewFamily == vfFloorPlan)
+                    return currentVFT;
+            }
+            return null;
         }
-
-        //private void CreateCeilingPlans(List<string[]> dataList)
-        //{
-        //    lblInfo.Content = "CreateCeilingPlans Method not yet implemented";
-        //}
-
-        //private void CreateFloorPlans(List<string[]> dataList)
-        //{
-        //    lblInfo.Content = "CreateFloorPlans Method not yet implemented";
-        //}
-    }
+    }//EndOf_Command
 }
